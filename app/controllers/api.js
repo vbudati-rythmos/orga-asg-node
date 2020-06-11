@@ -1,6 +1,6 @@
 const user = require('../models/user');
 const order = require('../models/order');
-const api = {};
+var api = {};
 
 var aggPipe = [];
 const lookUp = {
@@ -75,35 +75,31 @@ function calcNumberOfOrdersAndAvgBill() {
 //middleware functions
 api.calcOrdersAndBill = function (req, res) {
     calcNumberOfOrdersAndAvgBill().then((resp) => {
-        console.log(resp);
         res.json(resp);
     }).catch((err) => {
-        console.log(err);
         res.json(err);
     })
 }
 
-api.updateNumOfOrders = function(req, res) {
+api.updateNumOfOrders = function (req, res) {
     var writeOps = [];
     calcNumberOfOrdersAndAvgBill().then((resp) => {
         resp.forEach((doc) => {
             writeOps.push({
                 updateOne: {
-                    filter: {_id: doc.userId},
+                    filter: { _id: doc.userId },
                     update: {
-                        $set : { "noOfOrders" : doc.noOfOrders }
+                        $set: { "noOfOrders": doc.noOfOrders }
                     },
                     upsert: false
                 }
             })
         });
         bulkWrite(writeOps).then(() => {
-            res.json({success: true, message : "Successfully Updated"})
+            res.json({ success: true, message: "Successfully Updated" })
         }).catch((err) => {
-            console.log(err)
-            res.json({success: false, message : err})
+            res.json({ success: false, message: err })
         })
-
     })
 }
 
